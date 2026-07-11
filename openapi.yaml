@@ -3,7 +3,8 @@ info:
   title: MyGlooco Real-Time Prediction API
   version: 2.0.0
   description: >
-    API for the MyGlooco Digital Twin system. Ingests patient telemetry, processes it through an Unscented Kalman Filter (UKF) and a 102-feature LSTM neural network, and returns +15m, +30m, and +60m blood glucose forecasts.
+    API for the MyGlooco Digital Twin system. Ingests patient telemetry, processes it through an Unscented Kalman Filter (UKF) and a 102-feature LSTM neural network, and returns +15min, +30min, and +60min blood glucose forecasts.
+    (Note: The POST endpoint requires a valid Hugging Face Space Read Access Token in the Authorization header to work otherwise it will give an error. To test the API, go to this [Streamlit App](https://myglooco-prediction-live-tester-h4prv8rfuqm8x4vowgfhme.streamlit.app/) link instead.)
 servers:
   - url: https://josephmuema-myglooco-api.hf.space
     description: Hugging Face Production Server
