@@ -1,0 +1,120 @@
+openapi: 3.0.3
+info:
+  title: MyGlooco Real-Time Prediction API
+  version: 2.0.0
+  description: >
+    API for the MyGlooco Digital Twin system. Ingests patient telemetry, processes it through an Unscented Kalman Filter (UKF) and a 102-feature LSTM neural network, and returns +15m, +30m, and +60m blood glucose forecasts.
+servers:
+  - url: https://josephmuema-myglooco-api.hf.space
+    description: Hugging Face Production Server
+paths:
+  /api/v1/predict:
+    post:
+      summary: Predict Future Blood Glucose Horizons
+      operationId: predictHorizon
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TelemetryPacket'
+      responses:
+        '200':
+          description: Successful prediction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PredictionResponse'
+        '422':
+          description: Validation Error (Malformed JSON or missing fields)
+        '500':
+          description: Internal Server Error (Inference execution failed)
+        '503':
+          description: Service Unavailable (Prediction models uninitialized)
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: HF_TOKEN
+      description: Your Hugging Face Space Read Access Token
+      
+  schemas:
+    TelemetryPacket:
+      type: object
+      required:
+        - user_id
+        - timestamp
+        - current_bg
+        - carbs_g
+        - insulin_u
+      properties:
+        user_id:
+          type: string
+          example: "user_001"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2026-06-09T12:00:00Z"
+        current_bg:
+          type: number
+          format: float
+          example: 120.5
+        carbs_g:
+          type: number
+          format: float
+          example: 45.0
+        insulin_u:
+          type: number
+          format: float
+          example: 4.5
+        body_weight_kg:
+          type: number
+          format: float
+          default: 70.0
+        meal_type:
+          type: string
+          default: "None"
+        activity_type:
+          type: string
+          default: "None"
+        bolus_type:
+          type: string
+          default: "None"
+        activity_duration_min:
+          type: number
+          format: float
+          default: 0.0
+        activity_intensity:
+          type: number
+          format: float
+          default: 0.0
+        bwz_carb_input_g:
+          type: number
+          format: float
+          default: 0.0
+
+    PredictionResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "success"
+        predictions:
+          type: object
+          properties:
+            plus_15m:
+              type: number
+              format: float
+              example: 122.1
+            plus_30m:
+              type: number
+              format: float
+              example: 128.4
+            plus_60m:
+              type: number
+              format: float
+              example: 135.2
